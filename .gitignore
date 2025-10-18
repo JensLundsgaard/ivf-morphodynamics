@@ -4,4 +4,7 @@ embryo_dataset
 embryo_dataset_annotations
 embryo_dataset/*  
 embryo_dataset_annotations/*
+embryo_dataset_grades.csv
 .venv/*
+.venv
+__pycache__
