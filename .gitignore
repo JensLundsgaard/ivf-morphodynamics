@@ -4,3 +4,4 @@ embryo_dataset
 embryo_dataset_annotations
 embryo_dataset/*  
 embryo_dataset_annotations/*
+.venv/*
