@@ -1,8 +1,11 @@
 import torch
 import os
-
+from natsort import natsorted
 from torchsummary import summary
-#from tphate import tphate
+import tphate
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
 class Model(torch.nn.Module):
     def __init__(self):
         super().__init__() # Call the constructor of the parent class
@@ -111,7 +114,33 @@ class Enc_Model(torch.nn.Module):
         x = self.activation(x)
         return x
 enc_model = Enc_Model(model = model)
-print(summary(enc_model, input_size = (1,500,500), batch_size = -1))
+os.chdir("embryo_dataset")
+embryos = os.listdir()
+np.random.shuffle(embryos)
+for embryo in embryos[:int(len(embryos)*0.1)]:
+    os.chdir(embryo)
+    print(os.getcwd())
+    print(embryo)
+    tphate_op = tphate.TPHATE()
+    images = natsorted([i for i in os.listdir() if not os.path.isdir(i)])
+    try:
+        np.array([Image.open(img) for img in images])
+    except Exception:
+        with open('./../../bad_imgs.txt', 'w') as f:
+            f.write(embryo +'\n')
+        continue
+    data_input = torch.tensor(np.array([Image.open(img) for img in images]), dtype=torch.float32).reshape(-1, 1, 500,500)
+    model.eval()
+    data = enc_model(data_input).detach().numpy()
+    print(data.shape)
+    data_tphate = tphate_op.fit_transform(data)
+    print(data_tphate)
+    print(data_tphate.shape)
+    data_tphate = data_tphate.reshape(2, len(images)) 
+    plt.scatter(data_tphate[0], data_tphate[1])
+    plt.xlabel("Dim 1")
+    plt.ylabel("Dim 2")
+    plt.title(embryo)
+    plt.savefig("./../../results/tphate/" + embryo + ".png", dpi=300)
 
-#tphate_op = tphate.TPHATE()
-#data_tphate = tphate_op.fit_transform(data)
+    os.chdir("./..")
