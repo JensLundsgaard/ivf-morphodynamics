@@ -71,5 +71,5 @@ for embryo in embryos[:int(len(embryos)*0.1)]:
     plt.ylabel("Dim 2")
     plt.title(embryo)
     plt.savefig("./../../results/tphate/" + embryo + ".png", dpi=300)
-
+    plt.close()
     os.chdir("./..")
