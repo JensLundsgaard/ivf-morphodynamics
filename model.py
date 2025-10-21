@@ -1,11 +1,4 @@
-import numpy as np
 import torch
-import math
-from PIL import Image
-import os
-from natsort import natsorted
-from torchsummary import summary
-
 class Model(torch.nn.Module):
     def __init__(self):
         super().__init__() # Call the constructor of the parent class
@@ -55,11 +48,31 @@ class Model(torch.nn.Module):
         x = self.upsample1(x)
         x = self.conv10(x)
         return x
-
-
-
-
-#define model
+class Enc_Model(torch.nn.Module):
+    def __init__(self,model = Model()):
+        super().__init__() # Call the constructor of the parent class
+        self.conv1 = model.conv1
+        self.pool1 = model.pool1
+        self.conv2 = model.conv2
+        self.pool2 = model.pool2
+        self.conv3 = model.conv3
+        self.pool3 = model.pool3
+        self.flatten = model.flatten
+        self.linear = model.linear
+        self.activation = model.activation
+    def forward(self,x):
+        x = self.conv1(x)
+        x = self.pool1(x)
+        x = self.conv2(x)
+        x = self.pool2(x)
+        x = self.conv3(x)
+        x = self.pool3(x)
+        x = self.flatten(x)
+        x = self.linear(x)
+        x = self.activation(x)
+        return x
+   #define model
+"""
 model1 = torch.nn.Sequential(
     torch.nn.Conv2d(1, 8, 3),
     torch.nn.MaxPool2d(3),
@@ -90,55 +103,4 @@ model1 = torch.nn.Sequential(
     #torch.nn.Conv2d(1,1,71),
     )
 
-model = Model()
-if os.path.exists("model_weights.pth"):
-    model.load_state_dict(torch.load("model_weights.pth",weights_only = True))
-#print(summary(model, input_size = (1,500,500), batch_size = -1))
-# encoder: convo, downsample (maxpool), convo, downsample..., flatten 
-# rnn: lstm
-# decoder: reshape to 2d img, upsample, convo, upsample, 
-loss_fn = torch.nn.MSELoss(reduction='mean')
-learning_rate = 1e-3
-optimizer = torch.optim.RMSprop(model.parameters(), lr=learning_rate)
-#go through a random selection of images and run model on each in order, reset directory and lstm hidden state vectors after
-os.chdir("embryo_dataset")
-
-embryo_vids = os.listdir()
-np.random.shuffle(embryo_vids)
-select_amount = 0.01
-batch_size = 50
-embryo_vids = embryo_vids[:int(len(embryo_vids)*select_amount)]
-for i in embryo_vids:
-    PATH = "./../model_weights.pth"
-    torch.save(model.state_dict(), PATH)
-    print(os.getcwd())
-    os.chdir("./"+i)
-
-    print(os.getcwd())
-    images = os.listdir()
-    try:
-        np.array([Image.open(img) for img in images])
-    except OSError:
-        os.chdir("./..")
-        continue
-    images = natsorted(images)
-    images = [img for img in images if not os.path.isdir(img)]
-    for k in range(len(images)//batch_size):
-        x = torch.tensor(np.array([Image.open(img) for img in images[k*batch_size:min(len(images)-1,(k+1)*batch_size)]]), dtype=torch.float32).reshape((-1,1,500,500))
-        y = x.clone()
-        print(x.shape)
-        y_pred = model(x)
-
-        loss = loss_fn(y_pred, y)
-        print(loss)
-        optimizer.zero_grad()
-
-        loss.backward()
-
-        optimizer.step()
-
-    os.chdir("./..")
-    print(os.getcwd())
-
-os.chdir("./..")
-
+ """
