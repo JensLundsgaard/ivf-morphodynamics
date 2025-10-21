@@ -45,7 +45,7 @@ enc_model = Enc_Model(model = model)
 os.chdir("embryo_dataset")
 embryos = os.listdir()
 np.random.shuffle(embryos)
-for embryo in embryos[:int(len(embryos)*0.1)]:
+for embryo in embryos[:int(len(embryos)*0.2)]:
     os.chdir(embryo)
     print(os.getcwd())
     print(embryo)
