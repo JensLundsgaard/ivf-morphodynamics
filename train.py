@@ -537,13 +537,9 @@ def train_convlstm(
         # Required files for ConvLSTM model
         required_files = [
             "train.py",
-            "raffael_model.py",
-            "raffael_losses.py",
-            "raffael_conv_lstm.py",
+            "model.py",
             "dataset_ivf.py",
             "train_model.sh",
-            "training_config.txt",
-            "training_config_detailed.txt",
         ]
 
         # Generate unique repo name
